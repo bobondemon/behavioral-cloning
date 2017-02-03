@@ -90,7 +90,7 @@ gen_train = generator(path_train,position_train,steer_train,batch_size=batch_siz
 
 # Model architecture definition
 model = Sequential()
-model.add(Convolution2D(24, 5, 5, input_shape=(200, 66, 3), subsample=(2, 2), border_mode='valid'))
+model.add(Convolution2D(24, 5, 5, input_shape=(66, 200, 3), subsample=(2, 2), border_mode='valid'))
 #model.add(MaxPooling2D((2, 2)))
 #model.add(Dropout(0.5))
 model.add(Activation('elu'))
