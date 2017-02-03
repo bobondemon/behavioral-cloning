@@ -8,6 +8,7 @@ from keras.layers.core import Dense, Activation, Flatten, Dropout
 from keras.layers.convolutional import Convolution2D
 from keras.layers.pooling import MaxPooling2D
 from keras.optimizers import Adam
+from keras.models import load_model
 
 # load train data
 csv_path='../data/supported-data/train_log.csv'
@@ -73,7 +74,8 @@ def generator(path_all, position_all, steer_all, batch_size=64):
         yield (x_batch,y_batch)
         offset = (offset + batch_size)%num_examples
 
-gen_train = generator(path_train,position_train,steer_train)
+batch_size=64
+gen_train = generator(path_train,position_train,steer_train,batch_size=batch_size)
 
 #while True:
 #    _,y_batch = gen_train.__next__()
@@ -86,47 +88,52 @@ gen_train = generator(path_train,position_train,steer_train)
 #
 #x_batch2,y_batch2 = gen_train.__next__()
 
-
-
-# Model architecture definition
-model = Sequential()
-model.add(Convolution2D(24, 5, 5, input_shape=(100, 280, 3), border_mode='valid'))
-model.add(MaxPooling2D((2, 2)))
-#model.add(Dropout(0.5))
-model.add(Activation('elu'))
-
-model.add(Convolution2D(36, 5, 5, border_mode='valid'))
-model.add(MaxPooling2D((2, 2)))
-#model.add(Dropout(0.5))
-model.add(Activation('elu'))
-
-model.add(Convolution2D(48, 5, 5, border_mode='valid'))
-model.add(MaxPooling2D((2, 2)))
-#model.add(Dropout(0.5))
-model.add(Activation('elu'))
-
-model.add(Convolution2D(64, 3, 3, border_mode='valid'))
-model.add(MaxPooling2D((2, 2)))
-#model.add(Dropout(0.5))
-model.add(Activation('elu'))
-
-model.add(Flatten())
-model.add(Dense(100))
-model.add(Activation('elu'))
-model.add(Dense(50))
-model.add(Activation('elu'))
-model.add(Dense(10))
-model.add(Activation('elu'))
-model.add(Dense(1))
-#model.add(Activation('softmax'))
-
-model.summary()
-
-# Compile and train the model
-model.compile(optimizer=Adam(lr=1e-4),loss='mse')
-hist = model.fit_generator(gen_train, samples_per_epoch=len(steer_train), nb_epoch=1)
+isContiTrain=True
+in_model_path = 'model_online_nb_epoch_1.h5'
+out_model_path = 'model_online_nb_epoch_2.h5'
+if isContiTrain:
+    model = load_model(in_model_path)
+else:
+    # Model architecture definition
+    model = Sequential()
+    model.add(Convolution2D(24, 5, 5, input_shape=(100, 280, 3), border_mode='valid'))
+    model.add(MaxPooling2D((2, 2)))
+    #model.add(Dropout(0.5))
+    model.add(Activation('elu'))
+    
+    model.add(Convolution2D(36, 5, 5, border_mode='valid'))
+    model.add(MaxPooling2D((2, 2)))
+    #model.add(Dropout(0.5))
+    model.add(Activation('elu'))
+    
+    model.add(Convolution2D(48, 5, 5, border_mode='valid'))
+    model.add(MaxPooling2D((2, 2)))
+    #model.add(Dropout(0.5))
+    model.add(Activation('elu'))
+    
+    model.add(Convolution2D(64, 3, 3, border_mode='valid'))
+    model.add(MaxPooling2D((2, 2)))
+    #model.add(Dropout(0.5))
+    model.add(Activation('elu'))
+    
+    model.add(Flatten())
+    model.add(Dense(100))
+    model.add(Activation('elu'))
+    model.add(Dense(50))
+    model.add(Activation('elu'))
+    model.add(Dense(10))
+    model.add(Activation('elu'))
+    model.add(Dense(1))
+    #model.add(Activation('softmax'))
+    
+    model.summary()
+    # Compile and train the model
+    model.compile(optimizer=Adam(lr=1e-4),loss='mse')
+    
+samples = np.ceil(len(steer_train)/batch_size).astype('int')*batch_size
+hist = model.fit_generator(gen_train, samples_per_epoch=samples, nb_epoch=1)
 print(hist.history)
-model.save('model_online_nb_epoch_1.h5')
+model.save(out_model_path)
 
 #gen_test = generator(path_test,steer_test)
 #out = model.evaluate_generator(gen_test,len(steer_test))
