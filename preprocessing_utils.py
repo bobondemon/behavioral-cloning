@@ -77,8 +77,9 @@ def crop_img(img):
     h_down = img.shape[0]-20
     w_up = 20
     w_down = img.shape[1]-20
-    return img[h_up:h_down,w_up:w_down,:]
+    return cv2.resize(img[h_up:h_down,w_up:w_down,:],(200, 66))
 
 # Normalization
 def normalize_img(img):
-    return (img-128)/128
+    img=img.astype(float)
+    return (img-128.0)/128.0

@@ -34,7 +34,7 @@ def crop_img(img):
     h_down = img.shape[0]-20
     w_up = 20
     w_down = img.shape[1]-20
-    return img[h_up:h_down,w_up:w_down,:]
+    return cv2.resize(img[h_up:h_down,w_up:w_down,:],(200, 66))
 
 img = plt.imread(img_dir+path[select_idx])
 plt.figure()
@@ -47,7 +47,7 @@ plt.imshow(crop_img(img))
 plt.title(position[select_idx+1])
 plt.subplot(1,3,3)
 img = plt.imread(img_dir+path[select_idx+2])
-croppted_img = crop_img(img)
+cropped_img = crop_img(img)
 plt.imshow(crop_img(img))
 plt.title(position[select_idx+2])
 plt.tight_layout()
@@ -55,7 +55,8 @@ plt.savefig('crop_img.png')
 
 # Normalization
 def normalize_img(img):
-    return (img-128)/128
+    img=img.astype(float)
+    return (img-128.0)/128.0
 
 # Image Flipping
 def flip_img(img,steer):
