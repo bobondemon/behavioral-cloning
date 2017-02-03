@@ -10,21 +10,23 @@ from keras.layers.convolutional import Convolution2D
 from keras.layers.pooling import MaxPooling2D
 from keras.optimizers import Adam
 
-csv_path='../data/augmented-data/log.csv'
+# load train and test data
+csv_path='../data/augmented-data/train_log.csv'
 table = pd.read_csv(csv_path)
-steer_all = np.array(table['steer'])
-path_all = np.array(table['path'])
-path_all, steer_all = shuffle(path_all, steer_all)
-path_train, path_test, steer_train, steer_test = train_test_split(path_all, steer_all, test_size=0.1, random_state=42)
+steer_train = np.array(table['steer'])
+path_train = np.array(table['path'])
+path_train, steer_train = shuffle(path_train, steer_train)
+csv_path='../data/augmented-data/test_log.csv'
+table = pd.read_csv(csv_path)
+steer_test = np.array(table['steer'])
+path_test = np.array(table['path'])
 
-def generator_train(path_all, steer_all, batch_size=64):
+def generator(path_all, steer_all, batch_size=64):
     num_examples = len(path_all)
     offset = 0
     while True:
         x_batch=[]
         idx = np.mod(np.array(range(offset,offset+batch_size)),num_examples)
-        if (offset+batch_size) > num_examples:
-            print(idx)
         for path in path_all[idx]:
             input_file_path = '../data/augmented-data/'+path
             img = plt.imread(input_file_path)
@@ -33,7 +35,7 @@ def generator_train(path_all, steer_all, batch_size=64):
         yield (np.array(x_batch),y_batch)
         offset = (offset + batch_size)%num_examples
 
-gen_train = generator_train(path_train,steer_train)
+gen_train = generator(path_train,steer_train)
 
 #while True:
 #    _,y_batch = gen_train.__next__()
@@ -81,5 +83,8 @@ model.summary()
 model.compile(optimizer=Adam(lr=1e-4),loss='mse')
 hist = model.fit_generator(gen_train, samples_per_epoch=len(steer_train), nb_epoch=3)
 print(hist.history)
-
 model.save('model_nb_epoch_3_no_steer_correction.h5')
+
+gen_test = generator(path_test,steer_test)
+out = model.evaluate_generator(gen_test,len(steer_test))
+print('MSE loss = {}'.format(out))

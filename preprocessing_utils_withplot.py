@@ -13,21 +13,22 @@ steer_all = df['steering']
 c_path = df['center']
 l_path = df['left']
 r_path = df['right']
-## do some analysis of csv
-#plt.figure()
-#plt.bar(range(len(steer)),steer)
-#plt.axis('tight')
-#plt.ylim((-1,1))
-#plt.figure()
+# do some analysis of csv
+plt.figure(figsize=(10,7))
+plt.bar(range(len(steer_all)),steer_all)
+plt.axis('tight')
+plt.ylim((-1,1))
+plt.figure()
 
 maxi = np.argmax(steer_all)
 mini = np.argmin(steer_all)
+select_idx = [i for i in np.where(steer_all>-0.8)[0] if steer_all[i]<-0.6][0]
 randi = int(random.uniform(0,len(steer_all)))
 
-c_img = plt.imread(img_dir+c_path[randi].strip())
-l_img = plt.imread(img_dir+l_path[randi].strip())
-r_img = plt.imread(img_dir+r_path[randi].strip())
-steer = steer_all[randi]
+c_img = plt.imread(img_dir+c_path[select_idx].strip())
+l_img = plt.imread(img_dir+l_path[select_idx].strip())
+r_img = plt.imread(img_dir+r_path[select_idx].strip())
+steer = steer_all[select_idx]
 
 # Image Flipping
 def flip_img(img,steer):
@@ -46,12 +47,18 @@ plt.title('Image flipping')
 # ref: https://medium.com/@chrisgundling/cnn-model-comparison-in-udacitys-driving-simulator-9261de09b45#.6k571w66p
 # left right images where offset horizontally from the center camera by approximately 60 pixels.
 # Based on this information, I chose a steering angle correction of +/- 0.25 units or +/- 6.25 degrees for these left/right images.
-left_offset=10
-right_offset=10
 def get_lr_steer_angle(steer,lr):
+    left_offset=20
+    right_offset=20
+    if steer==0:
+        return steer
     theta = (steer*25/360)*2*math.pi
     end_point = (np.clip(160+80*math.tan(theta),a_min=0,a_max=319), 80)
     assert ((lr=='right') | (lr=='left'))
+    if steer<0 and lr=='left': # turn left and with left camera
+        return steer
+    if steer>0 and lr=='right': # turn right and with right camera
+        return steer
     if lr=='left':
         start_point = (160-left_offset,160)
     else:
@@ -59,7 +66,8 @@ def get_lr_steer_angle(steer,lr):
     diffx = end_point[0] - start_point[0]
     diffy = start_point[1] - end_point[1]
     rtn_theta = 360*math.atan(diffx/diffy)/(2*math.pi)
-    return np.clip(rtn_theta/25,a_min=-1,a_max=1)
+#    return np.clip(rtn_theta/25,a_min=-1,a_max=1)
+    return rtn_theta/25
 
 plt.figure(figsize=(15,15))
 plt.subplot(3,1,1)
@@ -67,6 +75,7 @@ plt.imshow(l_img)
 plt.title('left')
 plt.hold(True)
 steer_l = get_lr_steer_angle(steer,'left')
+plt.title('left with angle = {}'.format(steer_l*25))
 theta = (steer_l*25/360)*2*math.pi
 plt.plot([160,np.clip(160+80*math.tan(theta),a_min=0,a_max=319)],[160,80],'r-')
 plt.xlim([0,320])
@@ -79,9 +88,9 @@ plt.plot([160,np.clip(160+80*math.tan(theta),a_min=0,a_max=319)],[160,80],'r-')
 plt.xlim([0,320])
 plt.subplot(3,1,3)
 plt.imshow(r_img)
-plt.title('right')
 plt.hold(True)
 steer_r = get_lr_steer_angle(steer,'right')
+plt.title('right with angle = {}'.format(steer_r*25))
 theta = (steer_r*25/360)*2*math.pi
 plt.plot([160,np.clip(160+80*math.tan(theta),a_min=0,a_max=319)],[160,80],'r-')
 plt.xlim([0,320])
@@ -91,9 +100,9 @@ plt.savefig('l_c_r.png')
 # Horizontal/Vertical Shifting
 
 # Image Brightness
-def brighten_img(img,low_ratio=0.5,up_ratio=1.5):
+def brighten_img(img,low_ratio=0.65,up_ratio=1.2):
     hsv = cv2.cvtColor(img,cv2.COLOR_RGB2HSV)
-    ratio = random.uniform(0.5,1.2)
+    ratio = random.uniform(low_ratio,up_ratio)
 #    print('ratio={}'.format(ratio))
     hsv[:,:,-1] = np.clip(hsv[:,:,-1]*ratio,a_min=0,a_max=255)
     return cv2.cvtColor(hsv,cv2.COLOR_HSV2RGB)
