@@ -24,7 +24,7 @@ steer_0idx = np.where(steer==0)[0]
 #plt.title('Number of data = {}, with {} N ; {} P ; {} 0'.format( len(steer),\
 #          len(steer_nidx), len(steer_pidx), len(steer_0idx) ) )
 
-select_idx = [i for i in steer_nidx if steer[i]<-0.6][0] + 83
+select_idx = [i for i in steer_nidx if steer[i]<-0.6][0] + 89
 print('select idx = '+str(select_idx))
 
 # Cropping of the Car hood and sky from the training images.

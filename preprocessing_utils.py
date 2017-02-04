@@ -6,9 +6,7 @@ import math
 
 # Image Flipping
 def flip_img(img,steer):
-    if steer!=0:
-        steer*-1
-    return (img[:,-1::-1,:], steer)
+    return (img[:,-1::-1,:], steer*-1)
 
 # Left/Right Camera Images
 # ref: https://medium.com/@chrisgundling/cnn-model-comparison-in-udacitys-driving-simulator-9261de09b45#.6k571w66p
@@ -31,8 +29,8 @@ def get_lr_steer_angle(steer,lr):
     diffx = end_point[0] - start_point[0]
     diffy = start_point[1] - end_point[1]
     rtn_theta = 360*math.atan(diffx/diffy)/(2*math.pi)
-#    return np.clip(rtn_theta/25,a_min=-1,a_max=1)
-    return rtn_theta/25
+    return np.clip(rtn_theta/25,a_min=-1,a_max=1)
+#    return rtn_theta/25
 
 # Horizontal/Vertical Shifting
 # https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.zem65mq24

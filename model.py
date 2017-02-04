@@ -20,7 +20,7 @@ position_train = np.array(table['position'])
 permute_idx = np.random.permutation(len(steer_train))
 path_train = path_train[permute_idx]
 position_train = position_train[permute_idx]
-position_train = position_train[permute_idx]
+steer_train = steer_train[permute_idx]
 # load the test data
 csv_path='../data/supported-data/test_log.csv'
 table = pd.read_csv(csv_path)
@@ -37,8 +37,9 @@ def apply_augmentation(img_batch,pos_batch,st_batch):
     x_batch=[]
     y_batch=[]
     for img,pos,st in zip(img_batch,pos_batch,st_batch):
+        st=pp.get_lr_steer_angle(st,pos)
         dice = np.random.uniform()
-        if dice>use_effects:
+        if dice<use_effects:
             dice = np.random.uniform()
             if dice<use_flip:
                 img,st=pp.flip_img(img,st)
