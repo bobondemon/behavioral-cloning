@@ -11,16 +11,18 @@ from keras.optimizers import Adam
 from keras.models import load_model
 
 # load train data
-csv_path='../data/supported-data/train_balanced_log.csv'
+csv_path='../data/supported-data/train_log.csv'
 table = pd.read_csv(csv_path)
-steer_train = np.array(table['steering'])
-path_train = np.array(table['path'])
-position_train = np.array(table['position'])
+steer = table['steering']
+c_path = table['center']
+l_path = table['left']
+r_path = table['right']
 # shuffle the train data
-permute_idx = np.random.permutation(len(steer_train))
-path_train = path_train[permute_idx]
-position_train = position_train[permute_idx]
-steer_train = steer_train[permute_idx]
+permute_idx = np.random.permutation(len(steer))
+c_path = c_path[permute_idx]
+l_path = l_path[permute_idx]
+r_path = r_path[permute_idx]
+steer = steer[permute_idx]
 
 # define applying artificial effects
 def apply_augmentation(img_batch,pos_batch,st_batch):
@@ -42,19 +44,31 @@ def apply_augmentation(img_batch,pos_batch,st_batch):
     return np.array(x_batch),np.array(y_batch)
 
 # define the generator
-def generator(path_all, position_all, steer_all, batch_size=64):
-    num_examples = len(path_all)
+def generator(c_path,l_path,r_path,steer, batch_size=64):
+    num_examples = len(c_path)
     offset = 0
     while True:
         x_batch=[]
+        pos_batch=[]
         idx = np.mod(np.array(range(offset,offset+batch_size)),num_examples)
-        for path in path_all[idx]:
-            input_file_path = '../data/supported-data/'+path
+        for i in idx:
+            # position selection
+            pos = int(np.random.uniform(0,3))
+            if pos==0:
+                pos='center'
+                input_file_path = '../data/supported-data/'+c_path[i]
+            elif pos==1:
+                pos='left'
+                input_file_path = '../data/supported-data/'+l_path[i]
+            else:
+                pos='right'
+                input_file_path = '../data/supported-data/'+r_path[i]
             img = plt.imread(input_file_path)
             x_batch.append(img)
+            pos_batch.append(pos)
         x_batch = np.array(x_batch)
-        y_batch = steer_all[idx]
-        pos_batch = position_all[idx]
+        pos_batch = np.array(pos_batch)
+        y_batch = steer[idx]
 #        print('x_batch.shape={}'.format(x_batch.shape))
         x_batch, y_batch = apply_augmentation(x_batch,pos_batch,y_batch)
 #        print('--x_batch.shape={}'.format(x_batch.shape))
@@ -62,17 +76,13 @@ def generator(path_all, position_all, steer_all, batch_size=64):
         offset = (offset + batch_size)%num_examples
 
 batch_size=64
-gen_train = generator(path_train,position_train,steer_train,batch_size=batch_size)
+gen_train = generator(c_path,l_path,r_path,steer,batch_size=batch_size)
 
 #while True:
 #    _,y_batch = gen_train.__next__()
-#    if any(y_batch!=0):
-#        print('return')
-#        break
-#    else:
-#        print('all 0')
+#    print('zero count={}'.format(len(np.where(y_batch==0)[0])))
 #x_batch1,y_batch1 = gen_train.__next__()
-
+#
 #x_batch2,y_batch2 = gen_train.__next__()
 
 # Model architecture definition
@@ -115,7 +125,7 @@ model.summary()
 # Compile and train the model
 model.compile(optimizer=Adam(lr=1e-4),loss='mse')
     
-samples = np.ceil(len(steer_train)/batch_size).astype('int')*batch_size
+samples = np.ceil(len(steer)/batch_size).astype('int')*batch_size
 for epoch in range(20):
         hist = model.fit_generator(gen_train, samples_per_epoch=samples, nb_epoch=1)
         print(hist.history)
