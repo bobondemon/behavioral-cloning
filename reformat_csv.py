@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-isPlot=False
-kept_ratio_for_steer0 = 0.3
-emphasize_range = [0.2, 1]
+isPlot=True
+kept_ratio_for_steer0 = 0.4
+emphasize_range = [0.3, 1]
 repeat_num = 4
 
 csv_path='../data/supported-data/driving_log.csv'
@@ -36,12 +36,13 @@ if isPlot:
 f_train = open(out_dir+'train_log.csv', 'w')
 f_train.write('center,left,right,steering\n')
 for i in range(len(steer)):
-    if 0.1<np.abs(steer[i])<0.2:
-        continue
     if steer[i]==0 and np.random.uniform()<kept_ratio_for_steer0:  # will left only kept_ratio_for_steer0 portion of data with steer 0
         f_train.write('{},{},{},{}\n'.format(c_path[i].strip(),l_path[i].strip(),r_path[i].strip(),steer[i]))
     if steer[i]!=0:
         f_train.write('{},{},{},{}\n'.format(c_path[i].strip(),l_path[i].strip(),r_path[i].strip(),steer[i]))
+        if emphasize_range[0]<np.abs(steer[i])<emphasize_range[1]:
+            for k in range(repeat_num):
+                f_train.write('{},{},{},{}\n'.format(c_path[i].strip(),l_path[i].strip(),r_path[i].strip(),steer[i]))
     
 f_train.close()
 

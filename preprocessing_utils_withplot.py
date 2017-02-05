@@ -162,8 +162,20 @@ plt.title('Image brightness')
 plt.tight_layout()
 plt.savefig('test_brightness.png')
 
-## Image Blurring
-#
+# Image Blurring
+def blur_img(img, k=5):
+    return cv2.GaussianBlur(img, (k, k), 0)
+plt.figure()
+plt.subplot(2,1,1)
+plt.imshow(src_img_c)
+plt.title('Original img')
+plt.subplot(2,1,2)
+blurred_img = blur_img(src_img_c)
+plt.imshow(blurred_img)
+plt.title('Image blurring')
+plt.tight_layout()
+plt.savefig('test_blurring.png')
+
 ## Image Rotations
 ## Dont use it, since the correction of angle is not done
 #def rotate_img(img,steer):

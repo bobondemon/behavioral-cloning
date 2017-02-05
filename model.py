@@ -27,12 +27,15 @@ steer = steer[permute_idx]
 # define applying artificial effects
 def apply_augmentation(img_batch,pos_batch,st_batch):
     # those probabilities of artificial effects
+    use_blur = 0.5
     use_flip = 0.5
     x_batch=[]
     y_batch=[]
     for img,pos,st in zip(img_batch,pos_batch,st_batch):
         # first do the steering angle correction according to position of camera
         st=pp.get_lr_steer_angle(st,pos)
+        if np.random.uniform()<use_blur:
+            img=pp.blur_img(img)
         if np.random.uniform()<use_flip:
             img,st=pp.flip_img(img,st)
         img=pp.brighten_img(img)
