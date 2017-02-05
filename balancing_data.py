@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-emphasize_range = [0.2, 1]
+emphasize_range = [0.3, 1]
+repeat_num = 5
 csv_path='../data/supported-data/train_log.csv'
 out_path='../data/supported-data/train_balanced_log.csv'
 table = pd.read_csv(csv_path)
@@ -33,13 +34,8 @@ for i in range(len(steer)):
     if steer[i]!=0 or np.random.uniform()<0.3:  # will ignore about a half of steering 0 samples
         f_out.write('{},{},{}\n'.format(path[i],position[i],steer[i]))
         if i in pe_list or i in ne_list:    # emphasize the turning examples
-            f_out.write('{},{},{}\n'.format(path[i],position[i],steer[i]))
-            f_out.write('{},{},{}\n'.format(path[i],position[i],steer[i]))
-        if 0.4<steer[i]:
-            f_out.write('{},{},{}\n'.format(path[i],position[i],steer[i]))
-            f_out.write('{},{},{}\n'.format(path[i],position[i],steer[i]))
-            f_out.write('{},{},{}\n'.format(path[i],position[i],steer[i]))
-            f_out.write('{},{},{}\n'.format(path[i],position[i],steer[i]))
+            for j in range(repeat_num):
+                f_out.write('{},{},{}\n'.format(path[i],position[i],steer[i]))
     
 f_out.close()
 

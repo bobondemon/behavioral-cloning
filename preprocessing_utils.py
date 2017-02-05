@@ -15,6 +15,12 @@ def flip_img(img,steer):
 def get_lr_steer_angle(steer,lr):
     if lr=='center':    # no correction
         return steer
+        
+#    if lr=='left':
+#        return steer+0.25
+#    else:
+#        return steer-0.25
+        
     offset=6
     theta = (steer*25/360)*2*math.pi
     end_point = (np.clip(160+80*math.tan(theta),a_min=0,a_max=319), 80)
