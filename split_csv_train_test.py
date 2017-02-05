@@ -2,7 +2,7 @@
 import pandas as pd
 import random
 
-test_ratio = 0.05
+test_ratio = 0.00
 
 csv_path='../data/supported-data/driving_log.csv'
 out_dir='../data/supported-data/'

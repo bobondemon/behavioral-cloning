@@ -80,11 +80,11 @@ plt.tight_layout()
 # left right images where offset horizontally from the center camera by approximately 60 pixels.
 # Based on this information, I chose a steering angle correction of +/- 0.25 units or +/- 6.25 degrees for these left/right images.
 def get_lr_steer_angle(steer,lr):
-    offset=10
+    if steer==0 or lr=='center':
+        return steer
+    offset=6
     theta = (steer*25/360)*2*math.pi
     end_point = (np.clip(160+80*math.tan(theta),a_min=0,a_max=319), 80)
-    if lr=='center':
-        return steer
 #    if steer<=0 and lr=='left': # turn left and with left camera
 #        offset = 5
 #    if steer>=0 and lr=='right': # turn right and with right camera
@@ -96,8 +96,8 @@ def get_lr_steer_angle(steer,lr):
     diffx = end_point[0] - start_point[0]
     diffy = start_point[1] - end_point[1]
     rtn_theta = 360*math.atan(diffx/diffy)/(2*math.pi)
-#    return np.clip(rtn_theta/25,a_min=-1,a_max=1)
-    return rtn_theta/25
+    return np.clip(rtn_theta/25,a_min=-1,a_max=1)
+#    return rtn_theta/25
 
 plt.figure(figsize=(15,15))
 plt.subplot(3,1,1)

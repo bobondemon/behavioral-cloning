@@ -11,7 +11,7 @@ from keras.optimizers import Adam
 from keras.models import load_model
 
 # load train data
-csv_path='../data/supported-data/train_log.csv'
+csv_path='../data/supported-data/train_balanced_log.csv'
 table = pd.read_csv(csv_path)
 steer_train = np.array(table['steering'])
 path_train = np.array(table['path'])
@@ -31,23 +31,19 @@ position_test = np.array(table['position'])
 # define applying artificial effects
 def apply_augmentation(img_batch,pos_batch,st_batch):
     # those probabilities of artificial effects
-    use_effects = 0.5
-    use_flip = 0.33
-    use_bright = use_flip + 0.33
+    use_effects = 1.0
+    use_flip = 0.5
     x_batch=[]
     y_batch=[]
     for img,pos,st in zip(img_batch,pos_batch,st_batch):
+        # first do the steering angle correction according to position of camera
         st=pp.get_lr_steer_angle(st,pos)
         dice = np.random.uniform()
         if dice<use_effects:
+            img=pp.brighten_img(img)
             dice = np.random.uniform()
             if dice<use_flip:
                 img,st=pp.flip_img(img,st)
-            elif dice<use_bright:
-                img=pp.brighten_img(img)
-            else:
-                img,st=pp.flip_img(img,st)
-                img=pp.brighten_img(img)
             img,st=pp.hshift_img(img,st)
         #normalize and crop
         img=pp.normalize_img(pp.crop_img(img))
@@ -103,17 +99,17 @@ model.add(Activation('elu'))
 
 model.add(Convolution2D(48, 5, 5, subsample=(2, 2), border_mode='valid'))
 #model.add(MaxPooling2D((2, 2)))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 model.add(Activation('elu'))
 
 model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode='valid'))
 #model.add(MaxPooling2D((2, 2)))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 model.add(Activation('elu'))
 
 model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode='valid'))
 #model.add(MaxPooling2D((2, 2)))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 model.add(Activation('elu'))
 
 model.add(Flatten())
@@ -130,10 +126,10 @@ model.summary()
 model.compile(optimizer=Adam(lr=1e-4),loss='mse')
     
 samples = np.ceil(len(steer_train)/batch_size).astype('int')*batch_size
-for epoch in range(5):
+for epoch in range(20):
         hist = model.fit_generator(gen_train, samples_per_epoch=samples, nb_epoch=1)
         print(hist.history)
-        model.save('model_{}_fixed_n.h5'.format(epoch+1))
+        model.save('model_{}_balancing.h5'.format(epoch+1))
 
 
 #gen_test = generator(path_test,steer_test)

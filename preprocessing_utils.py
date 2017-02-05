@@ -13,11 +13,11 @@ def flip_img(img,steer):
 # left right images where offset horizontally from the center camera by approximately 60 pixels.
 # Based on this information, I chose a steering angle correction of +/- 0.25 units or +/- 6.25 degrees for these left/right images.
 def get_lr_steer_angle(steer,lr):
-    offset=10
+    if lr=='center':    # no correction
+        return steer
+    offset=6
     theta = (steer*25/360)*2*math.pi
     end_point = (np.clip(160+80*math.tan(theta),a_min=0,a_max=319), 80)
-    if lr=='center':
-        return steer
 #    if steer<=0 and lr=='left': # turn left and with left camera
 #        offset = 5
 #    if steer>=0 and lr=='right': # turn right and with right camera
