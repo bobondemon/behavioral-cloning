@@ -21,12 +21,6 @@ permute_idx = np.random.permutation(len(steer_train))
 path_train = path_train[permute_idx]
 position_train = position_train[permute_idx]
 steer_train = steer_train[permute_idx]
-# load the test data
-csv_path='../data/supported-data/test_log.csv'
-table = pd.read_csv(csv_path)
-steer_test = np.array(table['steering'])
-path_test = np.array(table['path'])
-position_test = np.array(table['position'])
 
 # define applying artificial effects
 def apply_augmentation(img_batch,pos_batch,st_batch):
@@ -128,6 +122,3 @@ for epoch in range(20):
         model.save('model_{}_balancing.h5'.format(epoch+1))
 
 
-#gen_test = generator(path_test,steer_test)
-#out = model.evaluate_generator(gen_test,len(steer_test))
-#print('MSE loss = {}'.format(out))
