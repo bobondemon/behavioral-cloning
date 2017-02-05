@@ -36,6 +36,8 @@ if isPlot:
 f_train = open(out_dir+'train_log.csv', 'w')
 f_train.write('center,left,right,steering\n')
 for i in range(len(steer)):
+    if 0.1<np.abs(steer[i])<0.2:
+        continue
     if steer[i]==0 and np.random.uniform()<kept_ratio_for_steer0:  # will left only kept_ratio_for_steer0 portion of data with steer 0
         f_train.write('{},{},{},{}\n'.format(c_path[i].strip(),l_path[i].strip(),r_path[i].strip(),steer[i]))
     if steer[i]!=0:

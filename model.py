@@ -76,7 +76,7 @@ def generator(c_path,l_path,r_path,steer, batch_size=64):
         offset = (offset + batch_size)%num_examples
 
 batch_size=64
-gen_train = generator(c_path,l_path,r_path,steer,batch_size=batch_size)
+#gen_train = generator(c_path,l_path,r_path,steer,batch_size=batch_size)
 
 #while True:
 #    _,y_batch = gen_train.__next__()
@@ -126,9 +126,17 @@ model.summary()
 model.compile(optimizer=Adam(lr=1e-4),loss='mse')
     
 samples = np.ceil(len(steer)/batch_size).astype('int')*batch_size
-for epoch in range(20):
-        hist = model.fit_generator(gen_train, samples_per_epoch=samples, nb_epoch=1)
-        print(hist.history)
+for epoch in range(50):
+    print('epoch = {}'.format(epoch))
+    permute_idx = np.random.permutation(len(steer))
+    c_path = c_path[permute_idx]
+    l_path = l_path[permute_idx]
+    r_path = r_path[permute_idx]
+    steer = steer[permute_idx]
+    gen_train = generator(c_path,l_path,r_path,steer,batch_size=batch_size)
+    hist = model.fit_generator(gen_train, samples_per_epoch=samples, nb_epoch=1)
+    print(hist.history)
+    if epoch%2==0:
         model.save('model_{}_balancing.h5'.format(epoch+1))
 
 

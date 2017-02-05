@@ -8,23 +8,17 @@ import math
 
 img_dir='../data/supported-data/'
 csv_path='../data/supported-data/train_log.csv'
-df = pd.read_csv(csv_path)
-steer = df['steering']
-position = df['position']
-path = df['path']
-#
-steer_nidx = np.where(steer<0)[0]
-steer_pidx = np.where(steer>0)[0]
-steer_0idx = np.where(steer==0)[0]
-## do some analysis of csv
-#plt.figure(figsize=(10,7))
-#plt.bar(range(len(steer)),steer)
-#plt.axis('tight')
-#plt.ylim((-1,1))
-#plt.title('Number of data = {}, with {} N ; {} P ; {} 0'.format( len(steer),\
-#          len(steer_nidx), len(steer_pidx), len(steer_0idx) ) )
+table = pd.read_csv(csv_path)
+steer = table['steering']
+c_path = table['center']
+l_path = table['left']
+r_path = table['right']
 
-select_idx = [i for i in steer_nidx if steer[i]<-0.6][0] + 89
+select_idx = 89
+src_img_c = plt.imread(img_dir+c_path[select_idx])
+src_img_l = plt.imread(img_dir+l_path[select_idx])
+src_img_r = plt.imread(img_dir+r_path[select_idx])
+src_st = steer[select_idx]
 print('select idx = '+str(select_idx))
 
 # Cropping of the Car hood and sky from the training images.
@@ -36,20 +30,16 @@ def crop_img(img):
     w_down = img.shape[1]-20
     return cv2.resize(img[h_up:h_down,w_up:w_down,:],(200, 66))
 
-img = plt.imread(img_dir+path[select_idx])
 plt.figure()
 plt.subplot(1,3,1)
-plt.imshow(crop_img(img))
-plt.title(position[select_idx])
+plt.imshow(crop_img(src_img_l))
+plt.title('Left')
 plt.subplot(1,3,2)
-img = plt.imread(img_dir+path[select_idx+1])
-plt.imshow(crop_img(img))
-plt.title(position[select_idx+1])
+plt.imshow(crop_img(src_img_c))
+plt.title('center')
 plt.subplot(1,3,3)
-img = plt.imread(img_dir+path[select_idx+2])
-cropped_img = crop_img(img)
-plt.imshow(crop_img(img))
-plt.title(position[select_idx+2])
+plt.imshow(crop_img(src_img_r))
+plt.title('right')
 plt.tight_layout()
 plt.savefig('crop_img.png')
 
@@ -62,15 +52,12 @@ def normalize_img(img):
 def flip_img(img,steer):
     return (img[:,-1::-1,:], steer*-1)
 
-img = plt.imread(img_dir+path[select_idx])
-pos = position[select_idx]
-st = steer[select_idx]
 plt.figure()
-plt.subplot(2,1,1)
-plt.imshow(img)
-plt.title('Original img, steer = {}'.format(st))
-plt.subplot(2,1,2)
-flipped_img, flipped_st = flip_img(img,st)
+plt.subplot(1,2,1)
+plt.imshow(src_img_c)
+plt.title('Original img, steer = {}'.format(src_st))
+plt.subplot(1,2,2)
+flipped_img, flipped_st = flip_img(src_img_c,src_st)
 plt.imshow(flipped_img)
 plt.title('Image flipping, steer = {}'.format(flipped_st))
 plt.tight_layout()
@@ -82,7 +69,7 @@ plt.tight_layout()
 def get_lr_steer_angle(steer,lr):
     if steer==0 or lr=='center':
         return steer
-    offset=6
+    offset=5
     theta = (steer*25/360)*2*math.pi
     end_point = (np.clip(160+80*math.tan(theta),a_min=0,a_max=319), 80)
 #    if steer<=0 and lr=='left': # turn left and with left camera
@@ -99,37 +86,32 @@ def get_lr_steer_angle(steer,lr):
     return np.clip(rtn_theta/25,a_min=-1,a_max=1)
 #    return rtn_theta/25
 
+# left
 plt.figure(figsize=(15,15))
 plt.subplot(3,1,1)
-img = plt.imread(img_dir+path[select_idx])
-st = steer[select_idx]
-plt.imshow(img)
+plt.imshow(src_img_l)
 plt.hold(True)
-st1 = get_lr_steer_angle(st,position[select_idx])
-plt.title('{} with angle = {}'.format(position[select_idx],st1*25))
-theta = (st1*25/360)*2*math.pi
+st_l = get_lr_steer_angle(src_st,'left')
+plt.title('{} with angle = {}'.format('left',st_l*25))
+theta = (st_l*25/360)*2*math.pi
 plt.plot([160,np.clip(160+80*math.tan(theta),a_min=0,a_max=319)],[160,80],'r-')
 plt.xlim([0,320])
-
+# center
 plt.subplot(3,1,2)
-img = plt.imread(img_dir+path[select_idx+1])
-st = steer[select_idx+1]
-plt.imshow(img)
+plt.imshow(src_img_c)
 plt.hold(True)
-st2 = get_lr_steer_angle(st,position[select_idx+1])
-plt.title('{} with angle = {}'.format(position[select_idx+1],st2*25))
-theta = (st2*25/360)*2*math.pi
+st_c = get_lr_steer_angle(src_st,'center')
+plt.title('{} with angle = {}'.format('center',st_c*25))
+theta = (st_c*25/360)*2*math.pi
 plt.plot([160,np.clip(160+80*math.tan(theta),a_min=0,a_max=319)],[160,80],'r-')
 plt.xlim([0,320])
-
+# right
 plt.subplot(3,1,3)
-img = plt.imread(img_dir+path[select_idx+2])
-st = steer[select_idx+2]
-plt.imshow(img)
+plt.imshow(src_img_r)
 plt.hold(True)
-st3 = get_lr_steer_angle(st,position[select_idx+2])
-plt.title('{} with angle = {}'.format(position[select_idx+2],st3*25))
-theta = (st3*25/360)*2*math.pi
+st_r = get_lr_steer_angle(src_st,'right')
+plt.title('{} with angle = {}'.format('right',st_r*25))
+theta = (st_r*25/360)*2*math.pi
 plt.plot([160,np.clip(160+80*math.tan(theta),a_min=0,a_max=319)],[160,80],'r-')
 plt.xlim([0,320])
 plt.tight_layout()
@@ -151,14 +133,12 @@ def hshift_img(img,steer):
     steer=steer+0.004*tr_x
     return img,steer
 
-img = plt.imread(img_dir+path[select_idx])
-st = steer[select_idx]
 plt.figure()
 plt.subplot(2,1,1)
-plt.imshow(crop_img(img))
-plt.title('Original img, steer={}'.format(st))
+plt.imshow(crop_img(src_img_c))
+plt.title('Original img, steer={}'.format(src_st))
 plt.subplot(2,1,2)
-hshift_img,hshift_st = hshift_img(img,st)
+hshift_img,hshift_st = hshift_img(src_img_c,src_st)
 plt.imshow(crop_img(hshift_img))
 plt.title('Horizontal shift img, steer={}'.format(hshift_st))
 plt.tight_layout()
@@ -173,10 +153,10 @@ def brighten_img(img,low_ratio=0.5,up_ratio=1.1):
 
 plt.figure()
 plt.subplot(2,1,1)
-plt.imshow(img)
+plt.imshow(src_img_c)
 plt.title('Original img')
 plt.subplot(2,1,2)
-brightened_img = brighten_img(img)
+brightened_img = brighten_img(src_img_c)
 plt.imshow(brightened_img)
 plt.title('Image brightness')
 plt.tight_layout()
