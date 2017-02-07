@@ -61,7 +61,7 @@ def brighten_img(img,low_ratio=0.5,up_ratio=1.1):
     return cv2.cvtColor(hsv,cv2.COLOR_HSV2RGB)
 
 # Image Blurring
-def blur_img(img, k=5):
+def blur_img(img, k=3):
     return cv2.GaussianBlur(img, (k, k), 0)
 
 ## Image Rotations

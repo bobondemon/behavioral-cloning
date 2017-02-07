@@ -27,15 +27,15 @@ steer = steer[permute_idx]
 # define applying artificial effects
 def apply_augmentation(img_batch,pos_batch,st_batch):
     # those probabilities of artificial effects
-    use_blur = 0.5
+#    use_blur = 0.5
     use_flip = 0.5
     x_batch=[]
     y_batch=[]
     for img,pos,st in zip(img_batch,pos_batch,st_batch):
         # first do the steering angle correction according to position of camera
         st=pp.get_lr_steer_angle(st,pos)
-        if np.random.uniform()<use_blur:
-            img=pp.blur_img(img)
+#        if np.random.uniform()<use_blur:
+#            img=pp.blur_img(img)
         if np.random.uniform()<use_flip:
             img,st=pp.flip_img(img,st)
         img=pp.brighten_img(img)
@@ -129,7 +129,7 @@ model.summary()
 model.compile(optimizer=Adam(lr=1e-4),loss='mse')
     
 samples = np.ceil(len(steer)/batch_size).astype('int')*batch_size
-for epoch in range(50):
+for epoch in range(100):
     print('epoch = {}'.format(epoch))
     permute_idx = np.random.permutation(len(steer))
     c_path = c_path[permute_idx]
@@ -139,7 +139,6 @@ for epoch in range(50):
     gen_train = generator(c_path,l_path,r_path,steer,batch_size=batch_size)
     hist = model.fit_generator(gen_train, samples_per_epoch=samples, nb_epoch=1)
     print(hist.history)
-    if epoch%2==0:
-        model.save('model_{}_balancing.h5'.format(epoch+1))
+    model.save('models/model_{}_balancing.h5'.format(epoch+1))
 
 

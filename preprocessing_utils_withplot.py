@@ -14,7 +14,7 @@ c_path = table['center']
 l_path = table['left']
 r_path = table['right']
 
-select_idx = 89
+select_idx = 3960
 src_img_c = plt.imread(img_dir+c_path[select_idx])
 src_img_l = plt.imread(img_dir+l_path[select_idx])
 src_img_r = plt.imread(img_dir+r_path[select_idx])
@@ -30,15 +30,18 @@ def crop_img(img):
     w_down = img.shape[1]-20
     return cv2.resize(img[h_up:h_down,w_up:w_down,:],(200, 66))
 
-plt.figure()
+plt.figure(figsize=(15,7))
 plt.subplot(1,3,1)
-plt.imshow(crop_img(src_img_l))
+plt.imshow(src_img_l)
+#plt.imshow(crop_img(src_img_l))
 plt.title('Left')
 plt.subplot(1,3,2)
-plt.imshow(crop_img(src_img_c))
+plt.imshow(src_img_c)
+#plt.imshow(crop_img(src_img_c))
 plt.title('center')
 plt.subplot(1,3,3)
-plt.imshow(crop_img(src_img_r))
+plt.imshow(src_img_r)
+#plt.imshow(crop_img(src_img_r))
 plt.title('right')
 plt.tight_layout()
 plt.savefig('crop_img.png')
@@ -52,7 +55,7 @@ def normalize_img(img):
 def flip_img(img,steer):
     return (img[:,-1::-1,:], steer*-1)
 
-plt.figure()
+plt.figure(figsize=(7,7))
 plt.subplot(1,2,1)
 plt.imshow(src_img_c)
 plt.title('Original img, steer = {}'.format(src_st))
@@ -61,6 +64,7 @@ flipped_img, flipped_st = flip_img(src_img_c,src_st)
 plt.imshow(flipped_img)
 plt.title('Image flipping, steer = {}'.format(flipped_st))
 plt.tight_layout()
+plt.savefig('flip_img.png')
 
 # Left/Right Camera Images
 # ref: https://medium.com/@chrisgundling/cnn-model-comparison-in-udacitys-driving-simulator-9261de09b45#.6k571w66p
@@ -87,7 +91,7 @@ def get_lr_steer_angle(steer,lr):
 #    return rtn_theta/25
 
 # left
-plt.figure(figsize=(15,15))
+plt.figure(figsize=(7,7))
 plt.subplot(3,1,1)
 plt.imshow(src_img_l)
 plt.hold(True)
@@ -133,25 +137,27 @@ def hshift_img(img,steer):
     steer=steer+0.004*tr_x
     return img,steer
 
-plt.figure()
+plt.figure(figsize=(5,5))
 plt.subplot(2,1,1)
-plt.imshow(crop_img(src_img_c))
+plt.imshow(src_img_c)
+#plt.imshow(crop_img(src_img_c))
 plt.title('Original img, steer={}'.format(src_st))
 plt.subplot(2,1,2)
 hshift_img,hshift_st = hshift_img(src_img_c,src_st)
-plt.imshow(crop_img(hshift_img))
+plt.imshow(hshift_img)
+#plt.imshow(crop_img(hshift_img))
 plt.title('Horizontal shift img, steer={}'.format(hshift_st))
 plt.tight_layout()
 plt.savefig('test_hshift.png')
 
 # Image Brightness
-def brighten_img(img,low_ratio=0.5,up_ratio=1.1):
+def brighten_img(img,low_ratio=0.5,up_ratio=0.8):
     hsv = cv2.cvtColor(img,cv2.COLOR_RGB2HSV)
     ratio = random.uniform(low_ratio,up_ratio)
     hsv[:,:,-1] = np.clip(hsv[:,:,-1]*ratio,a_min=0,a_max=255)
     return cv2.cvtColor(hsv,cv2.COLOR_HSV2RGB)
 
-plt.figure()
+plt.figure(figsize=(7,7))
 plt.subplot(2,1,1)
 plt.imshow(src_img_c)
 plt.title('Original img')
@@ -163,9 +169,9 @@ plt.tight_layout()
 plt.savefig('test_brightness.png')
 
 # Image Blurring
-def blur_img(img, k=5):
+def blur_img(img, k=3):
     return cv2.GaussianBlur(img, (k, k), 0)
-plt.figure()
+plt.figure(figsize=(7,7))
 plt.subplot(2,1,1)
 plt.imshow(src_img_c)
 plt.title('Original img')

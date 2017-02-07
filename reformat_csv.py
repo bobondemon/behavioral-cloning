@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 isPlot=True
 kept_ratio_for_steer0 = 0.4
-emphasize_range = [0.3, 1]
+emphasize_range = [0.2, 1]
 repeat_num = 4
 
 csv_path='../data/supported-data/driving_log.csv'
@@ -29,8 +29,12 @@ zero_list = np.where(steer==0)[0]
 zero_num = len(zero_list)
 print('Total={}, zero={}, pos={}, pos_e={}, neg={}, neg_e={}'.format(len(steer),zero_num,p_num,pe_num,n_num,ne_num))
 if isPlot:
-    plt.figure()
+    plt.figure(figsize=(10,4))
+    plt.subplot(1,2,1)
     plt.hist(steer,bins=21,range=(-1,1))
+    plt.xlabel('Steering Angle')
+    plt.ylabel('Number of Instances')
+    plt.title('Before Selection')
 
 # gen balanced dataset
 f_train = open(out_dir+'train_log.csv', 'w')
@@ -64,5 +68,9 @@ zero_list = np.where(steer==0)[0]
 zero_num = len(zero_list)
 print('Total={}, zero={}, pos={}, pos_e={}, neg={}, neg_e={}'.format(len(steer),zero_num,p_num,pe_num,n_num,ne_num))
 if isPlot:
-    plt.figure()
-    plt.hist(steer,bins=21,range=(-1,1))
+    plt.subplot(1,2,2)
+    plt.hist(steer,bins=21,range=(-1,1),color='orange')
+    plt.ylim(0,5000)
+    plt.xlabel('Steering Angle')
+    plt.ylabel('Number of Instances')
+    plt.title('After Selection')
