@@ -17,8 +17,7 @@ So our first step is to collect the data, and fortunately, Udacity provides data
 8036 data are provided. Each data has **3** positions of images (left, center, right) with **1** corresponding steering angle.
 Most of angles are 0, and I found that randomly ignoring half of 0-angle data is fine and can speed up. Moreover, I duplicated some samples that has angles within the range +-[0.2, 1] in order to balance the data.
 Histograms of before/after data selection are shown below:
-
-<img src="img/steer_hist_before_after_selected_0.2_1.png" alt="histogram of steering angle before/after selection" height="80%" width="80%">
+<div align=center><img src="img/steer_hist_before_after_selected_0.2_1.png" alt="histogram of steering angle before/after selection" height="80%" width="80%"></div>
 
 ### Data Augmentation
 Data augmentation is a practical way to avoid overfit and generalized the model. I used 5 types of augmentations:
@@ -28,19 +27,15 @@ Data augmentation is a practical way to avoid overfit and generalized the model.
 2. **Horizontal shift** -- \[-20,+20\] pixels are randomly selected as the shift value. By doing so, it can help to recover the vehicle when it goes outside the lane.
 By referencing this [article](https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.zem65mq24), I added 0.004 steering angle units per pixel shift to the right, and subtracted 0.004 steering angle units per pixel shift to the left.
 Results in \[-0.8~+0.8\] steering values adjustment which corresponding to \[-2~+2\] degrees (steering value * 25 = degree)
-
-<img src="img/hshift.png" alt="horizontal shift" height="50%" width="50%">
+<div align=center><img src="img/hshift.png" alt="horizontal shift" height="50%" width="50%"></div>
 
 3. **Brightness** -- Brightness is done in the "HSV" domain. I found that with a ratio of \[0.5~1.1\] for "V" domain works fine.
-
-<img src="img/brightness.png" alt="brightness" height="50%" width="50%">
+<div align=center><img src="img/brightness.png" alt="brightness" height="50%" width="50%"></div>
 
 4. **Blurring** -- A Gaussian blur with kernel size 3 is applied. Not sure how useful of this method helps for robustness.
-
-<img src="img/blur.png" alt="blur" height="50%" width="50%">
+<div align=center><img src="img/blur.png" alt="blur" height="50%" width="50%"></div>
 <!--5. **Shadowing** -- A random shadowing function is adopted which is referenced from [this work](https://github.com/windowsub0406/SelfDrivingCarND/blob/master/SDC_project_3/model.ipynb).
-<img src="img/shadow.png" alt="shadow" height="50%" width="50%">-->
-
+<div align=center><img src="img/shadow.png" alt="shadow" height="50%" width="50%"></div>-->
 6. **Left/Right camera images** -- These left/right images are very useful for data augmentation and also help for recovering off-lane driving.
   > **Udacity**: You also might wonder why there are three cameras on the car: center, left, and right. That's because of the issue of recovering from being off-center.
   > In the simulator, you can weave all over the road and turn recording on and off. In a real car, however, that's not really possible. At least not legally.
@@ -48,7 +43,7 @@ Results in \[-0.8~+0.8\] steering values adjustment which corresponding to \[-2~
 
 I adjusted the steering angles for left/right images with a naive method. Following figure shows how I correct the angle of right image:
 
-<img src="img/left_right_angle_correction.png" alt="left_right_angle_correction" height="70%" width="70%">
+<div align=center><img src="img/left_right_angle_correction.png" alt="left_right_angle_correction" height="70%" width="70%"></div>
 
 I found that setting offset = 6 or 5 is good enough. For large value, the car starts zig-zagging. An example of correction shows below, where the steering angles are indicated by red lines:
 
@@ -63,9 +58,9 @@ I found that setting offset = 6 or 5 is good enough. For large value, the car st
 
 I adopted NVIDIA CNN with dropout layers:
 
-<img src="img/cnn_architecture.png" alt="cnn_architecture" height="70%" width="70%">
+<div align=center><img src="img/cnn_architecture.png" alt="cnn_architecture" height="70%" width="70%"></div>
 
-<img src="img/cnn_architecture2.png" alt="cnn_architecture2" height="70%" width="70%">
+<div align=center><img src="img/cnn_architecture2.png" alt="cnn_architecture2" height="70%" width="70%"></div>
 
 <!--
 | Layer (type) | Output Shape | Param |
