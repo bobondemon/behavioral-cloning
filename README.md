@@ -9,8 +9,9 @@ For those driving log data, *steering* and *images* are the most important featu
 Some might wonder that speed, throttle, and brake are features that are useful.
 Also, driving images are time correlated, not just a given static image.
 With ignoring so much useful information, does the goal still reasonable?
+
 [Nvidia](https://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf) just showed it works! and works pretty well!
-So our first step is to collect the data. Fortunately, Udacity provided data for us and I used those data for training.
+So our first step is to collect the data, and fortunately, Udacity provides data for us and I used it for training.
 
 ### Training Data Analysis
 8036 data are provided. Each data has **3** positions of images (left, center, right) with **1** corresponding steering angle.
@@ -41,7 +42,9 @@ By referencing this [article](https://chatbotslife.com/using-augmentation-to-mim
   > So in a real car, we'll have multiple cameras on the vehicle, and we'll map recovery paths from each camera. 
 
 I adjusted the steering angles for left/right images with a naive method. Following figure shows how I correct the angle of right image:
+
 <img src="img/left_right_angle_correction.png" alt="left_right_angle_correction" height="70%" width="70%">
+
 I found that setting offset = 6 or 5 is good enough. For large value, the car starts zig-zagging. An example of correction shows below, where the steering angles are indicated by red lines:
 ![steer_correction](img/steer_correction.png)
 
