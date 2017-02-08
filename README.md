@@ -1,13 +1,3 @@
----
-title: Driving by Learning Your Style
-date: 2017-02-05 21:58:07
-categories: ML
-tags:
-- ML
-- CNN
-- Deep Learning
-- Udacity
----
 ### Udacity Self Driving Project 3: behavioral cloning
 
 A great simulator is provided that can log your driving data (speed, throttle, brake, steering, and images) and test the driving algorithm.
