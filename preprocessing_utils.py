@@ -21,7 +21,7 @@ def get_lr_steer_angle(steer,lr):
 #    else:
 #        return steer-0.25
         
-    offset=6
+    offset=5
     theta = (steer*25/360)*2*math.pi
     end_point = (np.clip(160+80*math.tan(theta),a_min=0,a_max=319), 80)
 #    if steer<=0 and lr=='left': # turn left and with left camera
@@ -63,6 +63,23 @@ def brighten_img(img,low_ratio=0.5,up_ratio=1.1):
 # Image Blurring
 def blur_img(img, k=3):
     return cv2.GaussianBlur(img, (k, k), 0)
+    
+# This function is referenced from: https://github.com/windowsub0406/SelfDrivingCarND/blob/master/SDC_project_3/model.ipynb
+def generate_shadow(image, min_alpha=0.5, max_alpha = 0.75):
+    """generate random shadow in random region"""
+    rows, cols, _ = image.shape
+    top_x, bottom_x = np.random.randint(0, cols, 2)
+    
+    shadow_img = image.copy()
+    vertices = np.array([[top_x, 0], [cols, 0], [cols, rows], [bottom_x, rows]], dtype=np.int32)
+    mask = image.copy()
+    channel_count = image.shape[2]  # i.e. 3 or 4 depending on your image
+    ignore_mask_color = (0,) * channel_count
+    cv2.fillPoly(mask, [vertices], ignore_mask_color)
+    rand_alpha = np.random.uniform(min_alpha, max_alpha)
+    cv2.addWeighted(mask, rand_alpha, image, 1 - rand_alpha, 0., shadow_img)
+
+    return shadow_img
 
 ## Image Rotations
 ## Dont use it, since the correction of angle is not done

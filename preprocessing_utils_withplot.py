@@ -204,3 +204,31 @@ plt.savefig('test_blurring.png')
 #plt.title('Image rotation')
 #plt.imsave('test_rotation',rotated_img)
 #
+
+# This function is referenced from: https://github.com/windowsub0406/SelfDrivingCarND/blob/master/SDC_project_3/model.ipynb
+def generate_shadow(image, min_alpha=0.5, max_alpha = 0.75):
+    """generate random shadow in random region"""
+    rows, cols, _ = image.shape
+    top_x, bottom_x = np.random.randint(0, cols, 2)
+    
+    shadow_img = image.copy()
+    vertices = np.array([[top_x, 0], [cols, 0], [cols, rows], [bottom_x, rows]], dtype=np.int32)
+    mask = image.copy()
+    channel_count = image.shape[2]  # i.e. 3 or 4 depending on your image
+    ignore_mask_color = (0,) * channel_count
+    cv2.fillPoly(mask, [vertices], ignore_mask_color)
+    rand_alpha = np.random.uniform(min_alpha, max_alpha)
+    cv2.addWeighted(mask, rand_alpha, image, 1 - rand_alpha, 0., shadow_img)
+
+    return shadow_img
+    
+plt.figure(figsize=(7,7))
+plt.subplot(2,1,1)
+plt.imshow(src_img_c)
+plt.title('Original img')
+plt.subplot(2,1,2)
+shadow_img = generate_shadow(src_img_c)
+plt.imshow(shadow_img)
+plt.title('Image shadow')
+plt.tight_layout()
+#plt.savefig('test_blurring.png')
