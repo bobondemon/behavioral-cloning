@@ -21,16 +21,20 @@ Histograms of before/after data selection are shown below:
 ### Data Augmentation
 Data augmentation is a practical way to avoid overfit and generalized the model. I used 5 types of augmentations:
 1. **Flipping** -- Flipping is a useful way to *balancing both turns* of data. For each training data, a 1/2 probability is used to decide wheter to flip. Also, steering angle is multiplied by -1.
+
 2. **Horizontal shift** -- \[-20,+20\] pixels are randomly selected as the shift value. By doing so, it can help to recover the vehicle when it goes outside the lane.
 By referencing this [article](https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.zem65mq24), I added 0.004 steering angle units per pixel shift to the right, and subtracted 0.004 steering angle units per pixel shift to the left.
 \[-0.8~+0.8\] steering values are adjusted which corresponding to \[-2~+2\] degrees (because steering value * 25 is the degree by setting)
 <img src="img/hshift.png" alt="horizontal shift" height="50%" width="50%">
+
 3. **Brightness** -- The brightness is done in the "HSV" domain. I found that with a ratio of \[0.5~1.1\] for "V" value works fine.
 <img src="img/brightness.png" alt="brightness" height="50%" width="50%">
+
 4. **Blurring** -- A Gaussian blur with kernel size 3 is applied. Not sure how useful of this method helps for robustness.
 <img src="img/blur.png" alt="blur" height="50%" width="50%">
 <!--5. **Shadowing** -- A random shadowing function is adopted which is referenced from [this work](https://github.com/windowsub0406/SelfDrivingCarND/blob/master/SDC_project_3/model.ipynb).
 <img src="img/shadow.png" alt="shadow" height="50%" width="50%">-->
+
 6. **Left/Right camera images** -- These left/right images are very useful for data augmentation and also help for recovering off-lane driving.
   > **Udacity**: You also might wonder why there are three cameras on the car: center, left, and right. That's because of the issue of recovering from being off-center.
   > In the simulator, you can weave all over the road and turn recording on and off. In a real car, however, that's not really possible. At least not legally.
